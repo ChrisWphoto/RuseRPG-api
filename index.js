@@ -12,7 +12,7 @@ app.use(bodyParser.json());
 var con = mysql.createConnection({
   host     : 'ruseDB.db.10451415.hostedresource.com',
   user     : 'ruseDB',
-  password : 'FatEraser1!',
+  password : 'PASSWORD',
   database : 'ruseDB'
 });
 
