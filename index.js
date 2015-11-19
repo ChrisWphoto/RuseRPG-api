@@ -1,7 +1,9 @@
+// importing required modules
 var express = require('express');
-var mysql      = require('mysql');
 var bodyParser = require('body-parser');
+var mysqlConnect = require('./mysql-connect');
 
+//getting instance of the api router
 var app = express();
 
 // configure app to use bodyParser()
@@ -9,54 +11,46 @@ var app = express();
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
-var con = mysql.createConnection({
-  host     : 'ruseDB.db.10451415.hostedresource.com',
-  user     : 'ruseDB',
-  password : 'PASSWORD',
-  database : 'ruseDB'
-});
-
-con.connect(function(err){
-if(!err) {
-    console.log("Database is connected ... \n\n");
-} else {
-    console.log("Error connecting database ... \n\n" + err);
-}
-});
 
 // ROUTES FOR OUR API / These wil send back json based on what url you enter
 // =============================================================================
-app.get("/",function(req,res){
-con.query('SELECT * from testusers', function(err, rows, fields) {
 
-  if (!err){
-    console.log('The solution is: ', rows);
+
+//returns all users when root url is visted
+app.get("/",function(req,res){
+  con = mysqlConnect.getDB();
+
+  con.query('SELECT * from testusers', function(err, rows, fields) {
+    con.end();
+    if (err) throw err;
     res.json(rows);
-  }
-  else
-    console.log('Error while performing Query. ' + err );
-  });
+    });
 
 });
 
+//Middleware for the routes. Check for existence of user and then passes user
+//to next route.
 app.param('userid', function(req,res,next, id){
+  con = mysqlConnect.getDB();
   console.log('userid: '+id);
+
   con.query('select * from testusers where id = ?', id, function(err,rows){
-    if (err) return next(err);
-    if (!rows) return next(new Error("can't find user"));
-    console.log(rows);
+    con.end();
+    if (err){ return next(err); console.log('err in next');}
+    if (rows.length < 1) return next(new Error("can't find user"));
+    console.log(rows.length);
     req.user = rows;
     return next();
   });
+
 });
 
+//receiver of above middleware
 app.get("/users/:userid",function(req,res){
-  console.log(req.user);
-  res.json(req.user);
+  res.json(req.user); 
 });
 
 
 var port = process.env.PORT || 3000;        // set our port
-
 app.listen(port);
 console.log('Listening on port: ' + port);
