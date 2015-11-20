@@ -2,8 +2,8 @@ var mysql = require('mysql');
 
 var db = module.exports = {};
 
-var password = process.env.RUSE_PASSWORD
-var username = process.env.RUSE_USERNAME
+var username = process.env.RUSE_USERNAME;
+var password = process.env.RUSE_PASSWORD;
 
 db.getDB = function(){
   var con = mysql.createConnection({
