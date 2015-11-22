@@ -71,9 +71,11 @@ app.get("/users/:userid",function(req,res){
 //inserts a new user with whatever data is sent.
 // example {user_id: 3, userName: 'chris', email: 'b@b.com'}
 //does not need to be compelte, columns may be left blank
+//TODO FindOrCreate method for logging. 
 app.post("/postuser",function(req,res){
   var con = mysqlConnect.getDB();
-  
+  //select query if return size is 0
+  //create and send back user data. 
   con.query('INSERT INTO user SET ?', req.body, function(err, result) {
     con.end();
   
