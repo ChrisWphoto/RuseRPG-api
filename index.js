@@ -20,18 +20,19 @@ function insertUser(user, cb){
   var con = mysqlConnect.getDB();
   con.query('INSERT INTO user SET ?', user, function(err, result) {
     con.end();
-    if (err) throw err;
-    cb(result); 
-});
+    if (err) return cb(err, result);
+    cb(false, result); 
+  });
 }
 
 function getUserById(id, cb){
   var con = mysqlConnect.getDB();
   con.query('SELECT * FROM user WHERE user_id = ?', id, function(err,rows){ 
    con.end();
-   if (err) throw err;
-   cb(rows); 
-});
+   console.log('getUserByID: rows: ' + rows);
+   if (err) return cb(err,rows);
+   cb(false, rows); 
+  });
 }
 
 
@@ -126,16 +127,19 @@ app.get("/users/:userid",function(req,res){
 // example {user_id: 3, userName: 'chris', email: 'b@b.com'}
 //does not need to be compelte, columns may be left blank
 app.post("/postuser",function(req,res){
-  console.log(req.body.user_id);
-  getUserById(req.body.user_id, function(reqUser){
+  console.log('/postUser: looking for, req.body.user_id: ' + req.body.user_id);
+  getUserById(req.body.user_id, function(err, reqUser){
     if (reqUser.length < 1){
-      insertUser(req.body, function(result){
-        console.log(result);
-        getUserById(req.body.user_id, function(rows){
+      insertUser(req.body, function(err, result){
+        if (err) res.send(err);
+        console.log('/postUser: Inserted: ' + result);
+        getUserById(req.body.user_id, function(err, rows){
+          if(err) res.send(err);
+          console.log('/postUser: created new user, sending defaults: ' + rows);
           res.json(rows);
         });  
       });
-    } else {res.json(reqUser);}
+    } else {console.log('/postUser: Found existing user:');  res.json(reqUser);}
   });   
 });
   
