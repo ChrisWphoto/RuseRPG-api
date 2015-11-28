@@ -1,0 +1,48 @@
+<h2>
+	Welcome! Ruse Api is up and Running.
+</h2> 
+<h3>Route Documentation & Examples</h3>
+<code>
+	
+	<p>
+	/users/:id <br/>
+	  - Takes: url parameter e.g. users/1234 <br/>
+	  - Returns: Array of 1 JSON object representing all user profile data. 
+	</p>
+	<p>
+	/lookUpCardio <br/>
+	- Takes: void <br/>
+	- Returns: Array of JSON objects representing all cardio workouts on file 
+	</p> 
+	<p>
+	/lookUpStrength <br/>
+	- Takes: void <br/>
+	- Returns: Array of JSON objects representing all strength workouts on file
+	</p> 
+	<p>
+	/postUser <br/>
+	- Takes: {user_id: 5, userName: 'Tony', email: 'm@m.com'} <br/>
+	- Returns: Array of 1 JSON object representing all user profile data. <br/>
+	- Note: if user does NOT exist, new user will be created and default profile will be returned
+	</p> 
+	
+	<p>
+	/postWorkout <br/>
+	  - Takes: {workout_id : int, fk_user_id : TwitterID} <br/>
+	  - Returns: JSON Confirmation of Success or Error <br/>
+	  - Note: Timestamp is added as current time by default
+	</p>
+	<p>
+	/postCardio <br/>
+	- Takes: {duration_seconds : int, fk_workout_id : int, fk_workout_user_id : TwitterID, fk_lookupcardio_id : int } <br/>
+	- Returns: JSON Confirmation of Success or Error <br/>
+	- Note: cardio_id is auto generated
+	</p> 
+	<p>
+	/postStrength <br/>
+	- Takes: {reps : int, fk_workout_id : int, fk_workout_user_id : TwitterID, fk_lookupstrength_id : int } <br/>
+	- Returns: JSON Confirmation of Success or Error <br/>
+	- Note: strength_id is auto generated
+	</p> 
+ </code>
+ 

@@ -6,6 +6,10 @@ var mysqlConnect = require('./mysql-connect');
 //getting instance of the api router
 var app = express();
 
+// view engine setup
+app.use(express.static(__dirname + '/views'));
+
+
 // configure app to use bodyParser()
 // this will let us get the data from a POST
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -36,11 +40,40 @@ function getUserById(id, cb){
 // ROUTES FOR OUR API / These wil send back json based on what url you enter
 // =============================================================================
 
-
-//returns all users when root url is visted
-app.get("/",function(req,res){
-  res.send("<h2>Welcome! :) Ruse Api is Running</h2> <p><b>/users/1</b> retrieves user 1 by id</p><p><b>/lookupcardio</b> retrieves all cardio</p><p><b>/lookupstrength</b> retrieves all strength</p><p><b>/postuser</b> send http post here to insert a new user send data in this format {user_id: 5, userName: 'Tony', email: 'm@m.com'} If user exists then you will get the complete user profile. If the user is new we will create a new user and send back the default profile. </p>");
+//render documentation page
+app.get("/", function (req, res) {
+  res.render('index');
 });
+
+app.post("/postworkout", function(req, res){
+  var con = mysqlConnect.getDB();
+  con.query('INSERT INTO workout SET ?', req.body, function(err, result){
+    con.end();
+    if (err) res.send(err);
+    res.json(result);
+  });
+});
+
+
+app.post("/postcardio", function(req, res){
+  var con = mysqlConnect.getDB();
+  con.query('INSERT INTO cardio SET ?', req.body, function(err, result){
+    con.end();
+    if (err) res.send(err);
+    res.json(result);
+  });
+});
+
+app.post("/poststrength", function(req, res){
+  var con = mysqlConnect.getDB();
+  con.query('INSERT INTO strength SET ?', req.body, function(err, result){
+    con.end();
+    if (err) res.send(err);
+    res.json(result);
+  });
+});
+
+
 
 //returns all cardio exercises when root url is visted
 app.get("/lookupcardio",function(req,res){
@@ -92,7 +125,6 @@ app.get("/users/:userid",function(req,res){
 //inserts a new user with whatever data is sent.
 // example {user_id: 3, userName: 'chris', email: 'b@b.com'}
 //does not need to be compelte, columns may be left blank
-//TODO FindOrCreate method for logging. 
 app.post("/postuser",function(req,res){
   console.log(req.body.user_id);
   getUserById(req.body.user_id, function(reqUser){
@@ -109,12 +141,7 @@ app.post("/postuser",function(req,res){
   
   
   
-    // con.end();
   
-  
-
-
-
 var port = process.env.PORT || 3000;        // set our port
 app.listen(port);
 console.log('Listening on port: ' + port);
