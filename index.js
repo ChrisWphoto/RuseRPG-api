@@ -127,6 +127,7 @@ app.get("/users/:userid",function(req,res){
 // example {user_id: 3, userName: 'chris', email: 'b@b.com'}
 //does not need to be compelte, columns may be left blank
 app.post("/postuser",function(req,res){
+  console.log('/postUser: req: ' + req);
   console.log('/postUser: looking for, req.body.user_id: ' + req.body.user_id);
   getUserById(req.body.user_id, function(err, reqUser){
     if (reqUser.length < 1){
