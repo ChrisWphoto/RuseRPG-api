@@ -2,9 +2,10 @@
   "name": "ruseRPG-api",
   "version": "0.0.1",
   "dependencies": {
-    "express": "^4.10.6",
-    "mysql": "^2.5.4",
     "body-parser": "~1.0.1",
-    "mocha":"*"
+    "express": "^4.10.6",
+    "mocha": "*",
+    "mysql": "^2.5.4",
+    "really-need": "^1.7.2"
   }
 }

@@ -2,6 +2,7 @@
 var express = require('express');
 var bodyParser = require('body-parser');
 var mysqlConnect = require('./mysql-connect');
+var util = require('util');
 
 //getting instance of the api router
 var app = express();
@@ -46,7 +47,9 @@ app.get("/", function (req, res) {
   res.render('index');
 });
 
-app.post("/postworkout", function(req, res){
+
+
+app.post("/postworkout/:userid", function(req, res){
   var con = mysqlConnect.getDB();
   con.query('INSERT INTO workout SET ?', req.body, function(err, result){
     con.end();
@@ -73,6 +76,8 @@ app.post("/poststrength", function(req, res){
     res.json(result);
   });
 });
+
+
 
 
 
@@ -108,18 +113,42 @@ app.param('userid', function(req,res,next, id){
   
   con.query('select * from user where user_id = ?', id, function(err,rows){
     con.end();
-    if (err){ return next(err); console.log('err in next');}
+    if (err){ console.log('/userid Param: ' + util.inspect(err, false, null)); return next(err);}
     if (rows.length < 1) return next(new Error("can't find user"));
-    console.log(rows.length);
+    console.log('/userid Param: rows:  ' + util.inspect(rows, false, null));
     req.user = rows;
     return next();
   });
 
 });
 
-//receiver of above middleware
+
+//Route for getting all workouts by a user in the last 7 days. 
+app.get('/getworkouts/:userid', function(req,res){
+  var con = mysqlConnect.getDB();
+  var userId = req.user[0].user_id;
+  console.log('/getwokouts/:userid: userId: ' + userId);
+  con.query('Select strengthName,reps AS \'Duration/reps\' From lookUpStrength inner join strength on lookUpStrength.lookUpStrength_id =strength.fk_lookupStrength_id inner join workout on strength.fk_workout_id = workout.workout_id where fk_workout_user_id = ? and date_tm_complete BETWEEN SUBDATE(CURDATE(), INTERVAL 1 MONTH) AND NOW() UNION ALL Select cardioName, duration_seconds AS \'Duration/reps\' From lookUpCardio inner join cardio on lookUpCardio.lookUpCardio_id =cardio.fk_lookupCardio_id inner join workout on cardio.fk_workout_id = workout.workout_id where fk_workout_user_id = ? and date_tm_complete BETWEEN SUBDATE(CURDATE(), INTERVAL 1 MONTH) AND NOW();', [userId, userId], function(err, rows){
+    con.end();
+    if (err) {console.log('/getWorkout err: ' + err); res.send(err);}
+    res.json(rows);
+  });
+});
+
+//get User by ID
 app.get("/users/:userid",function(req,res){
   res.json(req.user); 
+});
+
+app.put('/user/:userid', function(req,res){
+  var con = mysqlConnect.getDB();
+  var userId = req.user[0].user_id;
+  con.query('UPDATE user SET ? where user_id = ?', [req.body, userId], function(err, result){
+    con.end();
+    if (err) {console.log('/getUser user/:userid err: ' + err); res.send(err);}
+    res.json(result);
+  });
+
 });
 
 
@@ -127,7 +156,7 @@ app.get("/users/:userid",function(req,res){
 // example {user_id: 3, userName: 'chris', email: 'b@b.com'}
 //does not need to be compelte, columns may be left blank
 app.post("/postuser",function(req,res){
-  console.log('/postUser: req: ' + req);
+  console.log('/postUser: req: ' + util.inspect(req.body, false, null));
   console.log('/postUser: looking for, req.body.user_id: ' + req.body.user_id);
   getUserById(req.body.user_id, function(err, reqUser){
     if (reqUser.length < 1){
@@ -149,4 +178,4 @@ app.post("/postuser",function(req,res){
   
 var port = process.env.PORT || 3000;        // set our port
 app.listen(port);
-console.log('Listening on port: ' + port);
+console.log('Listening on the port: ' + port);
