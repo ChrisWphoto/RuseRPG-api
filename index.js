@@ -30,7 +30,7 @@ function getUserById(id, cb){
   var con = mysqlConnect.getDB();
   con.query('SELECT * FROM user WHERE user_id = ?', id, function(err,rows){ 
    con.end();
-   console.log('getUserByID: rows: ' + rows);
+   console.log('getUserByID: looking for id: ' + id + ' and rows: ' + rows);
    if (err) return cb(err,rows);
    cb(false, rows); 
   });
@@ -161,10 +161,10 @@ app.post("/postuser",function(req,res){
   getUserById(req.body.user_id, function(err, reqUser){
     if (reqUser.length < 1){
       insertUser(req.body, function(err, result){
-        if (err) res.send(err);
+        if(err) {console.log('/postUser err: ' + err);  res.send(err);}
         console.log('/postUser: Inserted: ' + result);
         getUserById(req.body.user_id, function(err, rows){
-          if(err) res.send(err);
+          if(err) {console.log('/postUser err: ' + err);  res.send(err);}
           console.log('/postUser: created new user, sending defaults: ' + rows);
           res.json(rows);
         });  
